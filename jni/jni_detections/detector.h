@@ -8,14 +8,15 @@
  */
 
 #pragma once
-
 #include <jni_common/jni_fileutils.h>
 #include <dlib/image_loader/load_image.h>
 #include <dlib/image_processing.h>
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <dlib/image_processing/render_face_detections.h>
 #include <dlib/opencv/cv_image.h>
+#include <dlib/opencv/to_open_cv.h>
 #include <dlib/image_loader/load_image.h>
+#include <dlib/image_saver/save_jpeg.h>
 #include <glog/logging.h>
 #include <jni.h>
 #include <memory>
@@ -149,7 +150,6 @@ class DLibHOGFaceDetector : public DLibHOGDetector {
   dlib::shape_predictor msp;
   std::unordered_map<int, dlib::full_object_detection> mFaceShapeMap;
   dlib::frontal_face_detector mFaceDetector;
-
   inline void init() {
     LOG(INFO) << "Init mFaceDetector";
     mFaceDetector = dlib::get_frontal_face_detector();
@@ -179,13 +179,11 @@ class DLibHOGFaceDetector : public DLibHOGDetector {
   virtual inline int det(const cv::Mat& image) {
     if (image.empty())
       return 0;
-    LOG(INFO) << "com_tzutalin_dlib_PeopleDet go to det(mat)";
+    LOG(INFO) << __PRETTY_FUNCTION__ << " " << __LINE__;
     if (image.channels() == 1) {
       cv::cvtColor(image, image, CV_GRAY2BGR);
     }
     CHECK(image.channels() == 3);
-    // TODO : Convert to gray image to speed up detection
-    // It's unnecessary to use color image for face/landmark detection
     dlib::cv_image<dlib::bgr_pixel> img(image);
     mRets = mFaceDetector(img);
     LOG(INFO) << "Dlib HOG face det size : " << mRets.size();
@@ -197,8 +195,45 @@ class DLibHOGFaceDetector : public DLibHOGDetector {
         LOG(INFO) << "face index:" << j
                   << "number of parts: " << shape.num_parts();
         mFaceShapeMap[j] = shape;
-      }
+	  }
     }
+    return mRets.size();
+  }
+
+  virtual inline int saveFaceChips(const std::string& srcPath,
+    const std::string& dstPath) {
+    cv::Mat image = cv::imread(srcPath, CV_LOAD_IMAGE_COLOR);
+    if (image.empty())
+      return 0;
+    LOG(INFO) << __PRETTY_FUNCTION__ << " " << __LINE__;
+    if (image.channels() == 1) {
+      cv::cvtColor(image, image, CV_GRAY2BGR);
+    }
+    CHECK(image.channels() == 3);
+    dlib::cv_image<dlib::bgr_pixel> img(image);
+    mRets = mFaceDetector(img);
+    LOG(INFO) << "Dlib HOG face det size : " << mRets.size();
+    mFaceShapeMap.clear();
+    // Process shape
+    std::vector<dlib::full_object_detection> shapes;
+    if (mRets.size() != 0 && mLandMarkModel.empty() == false) {
+      for (unsigned long j = 0; j < mRets.size(); ++j) {
+        dlib::full_object_detection shape = msp(img, mRets[j]);
+        LOG(INFO) << "face index:" << j
+                  << "number of parts: " << shape.num_parts();
+        	mFaceShapeMap[j] = shape;
+            shapes.push_back(shape);
+		   }
+  		dlib::array<dlib::array2d<dlib::rgb_pixel> > face_chips;
+  		extract_image_chips(img, get_face_chip_details(shapes), face_chips);
+  		for( int i =0; i < face_chips.size(); i++ ) {
+       	std::ostringstream ss;
+  			ss << dstPath << "_face_" << i << ".jpg";
+  			LOG(INFO) << "WRITING XXX " << ss.str();
+  			cv::imwrite(  ss.str(), toMat(face_chips[i]));
+  		}
+    }
+
     return mRets.size();
   }
 

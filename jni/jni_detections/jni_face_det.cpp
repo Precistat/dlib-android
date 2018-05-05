@@ -83,9 +83,8 @@ void setDetectorPtr(JNIEnv* env, jobject thiz, DetectorPtr newPtr) {
 extern "C" {
 #endif
 
-
 #define DLIB_FACE_JNI_METHOD(METHOD_NAME) \
-  Java_com_tzutalin_dlib_FaceDet_##METHOD_NAME
+  Java_com_keye_karthiksubraveti_keye_FaceDet_##METHOD_NAME
 
 void JNIEXPORT
     DLIB_FACE_JNI_METHOD(jniNativeClassInit)(JNIEnv* env, jclass _this) {}
@@ -145,6 +144,21 @@ JNIEXPORT jobjectArray JNICALL
 #endif
   LOG(INFO) << "det face size: " << size;
   return getDetectResult(env, detPtr, size);
+}
+
+JNIEXPORT jint JNICALL
+    DLIB_FACE_JNI_METHOD(jniSaveFaceChips)(JNIEnv* env, jobject thiz,
+										jstring imgSrcPath, jstring imgDstPath) {
+  LOG(INFO) << "jniSaveFaceChips";
+  const char* img_src_path = env->GetStringUTFChars(imgSrcPath, 0);
+  const char* img_dst_path = env->GetStringUTFChars(imgDstPath, 0);
+  DetectorPtr detPtr = getDetectorPtr(env, thiz);
+  jint size = detPtr->saveFaceChips(std::string(img_src_path),
+    std::string(img_dst_path));
+  env->ReleaseStringUTFChars(imgSrcPath, img_src_path);
+  env->ReleaseStringUTFChars(imgDstPath, img_dst_path);
+  LOG(INFO) << "det face size: " << size;
+  return size;
 }
 
 jint JNIEXPORT JNICALL DLIB_FACE_JNI_METHOD(jniInit)(JNIEnv* env, jobject thiz,
