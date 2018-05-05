@@ -72,4 +72,5 @@ Alternative way to build native code and copy to the Android Studio's project ma
 
 ### Future tasks
 * Add more examples to [dlib-android-app](https://github.com/tzutalin/dlib-android-app)
+--
 
