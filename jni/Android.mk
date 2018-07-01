@@ -1,3 +1,6 @@
+APP_CPPFLAGS += -std=c++11 -o3
+APP_CPPFLAGS += -DUSE_SSE4_INSTRUCTIONS=ON
+
 LOCAL_PATH := $(call my-dir)
 SUB_MK_FILES := $(call all-subdir-makefiles)
 
@@ -11,7 +14,11 @@ LOCAL_SRC_FILES += \
                 ../$(LOCAL_PATH)/../dlib/dlib/entropy_decoder/entropy_decoder_kernel_2.cpp \
                 ../$(LOCAL_PATH)/../dlib/dlib/base64/base64_kernel_1.cpp \
                 ../$(LOCAL_PATH)/../dlib/dlib/threads/threads_kernel_1.cpp \
-                ../$(LOCAL_PATH)/../dlib/dlib/threads/threads_kernel_2.cpp
+                ../$(LOCAL_PATH)/../dlib/dlib/threads/threads_kernel_1.cpp \
+                ../$(LOCAL_PATH)/../dlib/dlib/threads/thread_pool_extension.cpp \
+                ../$(LOCAL_PATH)/../dlib/dlib/threads/async.cpp \
+								../$(LOCAL_PATH)/../dlib/dlib/dnn/tensor_tools.cpp \
+                ../$(LOCAL_PATH)/../dlib/dlib/dnn/cpu_dlib.cpp
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_C_INCLUDES)
 include $(BUILD_STATIC_LIBRARY)

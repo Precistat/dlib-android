@@ -34,7 +34,7 @@ include(${OPENCV_PREBUILT}/OpenCVConfig.cmake)
 include_directories(${DLIB_DIR} ${OpenCV_INCLUDE_DIRS} ${GLOG_INCLUDE_DIR} ${JNI_COMMON_INCLUDE} ${JNI_DETECTION_INCLUDE} include)
 
 add_library(android_dlib SHARED
-            ${JNI_DETECTION_SRC}/jni_face_det.cpp
+            ${JNI_DETECTION_SRC}/jni_face.cpp
             ${JNI_DETECTION_SRC}/jni_imageutils.cpp
             ${JNI_DETECTION_SRC}/jni_pedestrian_det.cpp
             ${JNI_COMMON_SRC}/jni_bitmap2mat.cpp
@@ -42,11 +42,14 @@ add_library(android_dlib SHARED
             ${JNI_COMMON_SRC}/jni_utils.cpp
             ${JNI_COMMON_SRC}/rgb2yuv.cpp
             ${JNI_COMMON_SRC}/yuv2rgb.cpp
-            ${DLIB_DIR}//dlib/threads/threads_kernel_shared.cpp
+            ${DLIB_DIR}/dlib/threads/threads_kernel_shared.cpp
             ${DLIB_DIR}/dlib/entropy_decoder/entropy_decoder_kernel_2.cpp
             ${DLIB_DIR}/dlib/base64/base64_kernel_1.cpp
             ${DLIB_DIR}/dlib/threads/threads_kernel_1.cpp
             ${DLIB_DIR}/dlib/threads/threads_kernel_2.cpp
+			      ${DLIB_DIR}/dlib/threads/thread_pool_extension.cpp
+			      ${DLIB_DIR}/dlib/threads/async.cpp
+            ${DLIB_DIR}/dlib/dnn/cpu_dlib.cpp
             ${EXT_DIR}/miniglog/glog/logging.cc)
 
 target_link_libraries(android_dlib
@@ -56,4 +59,3 @@ target_link_libraries(android_dlib
                       m
                       dl
                       log)
-
